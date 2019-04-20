@@ -116,6 +116,20 @@ install_folly() {
   popd
 }
 
+install_fizz() {
+  pushd .
+  if [[ ! -e "fizz" ]]; then
+    git clone https://github.com/facebookincubator/fizz
+  fi
+  mkdir -p fizz/build_
+  cd fizz/build_
+  cmake ../fizz
+  make
+  sudo make install
+  sudo ldconfig
+  popd
+}
+
 install_fbthrift() {
   pushd .
   if [[ ! -e "fbthrift" ]]; then
@@ -133,6 +147,33 @@ install_fbthrift() {
   sudo ldconfig
   cd ../thrift/lib/py
   sudo python setup.py install
+  popd
+}
+
+install_rsocket() {
+  pushd .
+  if [[ ! -e "rsocket-cpp" ]]; then
+    git clone https://github.com/rsocket/rsocket-cpp.git
+  fi
+  mkdir -p rsocket-cpp/build
+  cd rsocket-cpp/build
+  cmake -DCMAKE_BUILD_TYPE=DEBUG -DCMAKE_CXX_FLAGS="-fPIC" ../
+  make
+  sudo make install
+  sudo ldconfig
+  popd
+}
+
+install_sigar() {
+  pushd .
+  if [[ ! -e "sigar" ]]; then
+    git clone https://github.com/hyperic/sigar/
+  fi
+  cd sigar
+  ./autogen.sh
+  ./configure --disable-shared CFLAGS='-fgnu89-inline'
+  sudo make install
+  sudo ldconfig
   popd
 }
 
@@ -279,7 +320,7 @@ install_openr() {
     -DBUILD_TESTS=ON \
     -DADD_ROOT_TESTS=ON \
     -DCMAKE_CXX_FLAGS="-Wno-unused-parameter -fPIC" \
-    ../openr/
+    ../
   make
   sudo make install
   sudo chmod +x "/usr/local/sbin/run_openr.sh"
@@ -332,18 +373,21 @@ sudo apt-get install -y libdouble-conversion-dev \
 #
 
 install_gflags
-install_glog # Requires gflags to be build first
+install_glog # Requires gflags
 install_gtest
 install_mstch
 install_zstd
 install_folly
-install_wangle
 install_libsodium
+install_fizz # Requires libsodium and folly
+install_wangle # Requires fizz and folly
 install_libzmq
 install_libnl
 install_krb5
-install_fbthrift
-install_fbzmq
+install_rsocket
+install_fbthrift # Requires rsocket and wangle
+install_sigar
+install_fbzmq # Requires sigar and fbthrift
 install_re2
 install_openr
 
