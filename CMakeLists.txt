@@ -130,6 +130,11 @@ thrift_object(
 )
 
 add_dependencies(
+  OpenrCtrl-cpp2-obj
+  Decision-cpp2-obj
+)
+
+add_dependencies(
   Lsdb-cpp2-obj
   Network-cpp2-obj
 )
